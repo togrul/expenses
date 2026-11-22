@@ -30,6 +30,11 @@ return [
         'date_format' => 'd.m.Y',
         'week_starts_on' => 1,
         'locale' => env('APP_LOCALE', 'az'),
+        'notify_today' => true,
+        'notify_tomorrow' => true,
+        'notify_overdue' => true,
+        'notify_monthly' => true,
+        'notify_hour' => 9,
     ],
 
     'date_formats' => ['d.m.Y', 'd/m/Y', 'Y-m-d', 'm/d/Y'],
@@ -58,5 +63,19 @@ return [
     'backup_path' => storage_path('backups'),
 
     'backup_keep' => 30,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Push reminders
+    |--------------------------------------------------------------------------
+    |
+    | Reminders go out once a day at the hour each user picks, in this time
+    | zone. The hours are limited so "today" is the same date in UTC.
+    |
+    */
+
+    'timezone' => env('FINANCE_TIMEZONE', 'Asia/Baku'),
+
+    'notify_hours' => range(6, 22),
 
 ];

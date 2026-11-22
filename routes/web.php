@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ExportTransactionsController;
+use App\Http\Controllers\PushSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -23,6 +24,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('recurring', 'pages::recurring.index')->name('recurring.index');
 
     Route::livewire('categories', 'pages::categories.index')->name('categories.index');
+
+    Route::post('push-subscriptions', [PushSubscriptionController::class, 'store'])->name('push-subscriptions.store');
+    Route::delete('push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push-subscriptions.destroy');
 });
 
 require __DIR__.'/settings.php';

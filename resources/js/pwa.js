@@ -106,3 +106,141 @@ export function setUpPullToRefresh() {
         reset();
     });
 }
+
+const urlBase64ToUint8Array = (base64) => {
+    const padded = (base64 + '='.repeat((4 - (base64.length % 4)) % 4)).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = window.atob(padded);
+
+    return Uint8Array.from([...raw].map((char) => char.charCodeAt(0)));
+};
+
+const csrfHeaders = () => ({
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+    'X-XSRF-TOKEN': decodeURIComponent(document.cookie.match(/(?:^|; )XSRF-TOKEN=([^;]*)/)?.[1] ?? ''),
+});
+
+/**
+ * Alpine component for Settings → Notifications: subscribe this device to Web Push.
+ * On iPhone this only works inside the installed (home screen) app, iOS 16.4+.
+ */
+export const pushSubscription = (vapidPublicKey) => ({
+    state: 'loading',
+    busy: false,
+    error: null,
+
+    async init() {
+        const isIos = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+        if (isIos && !isStandalone()) {
+            this.state = 'install';
+
+            return;
+        }
+
+        if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window) || !vapidPublicKey) {
+            this.state = 'unsupported';
+
+            return;
+        }
+
+        if (Notification.permission === 'denied') {
+            this.state = 'denied';
+
+            return;
+        }
+
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+
+        if (subscription) {
+            await this.save(subscription);
+        }
+
+        this.state = subscription ? 'on' : 'off';
+    },
+
+    async save(subscription) {
+        const json = subscription.toJSON();
+        const encoding = (PushManager.supportedContentEncodings || ['aes128gcm'])[0];
+
+        const response = await fetch('/push-subscriptions', {
+            method: 'POST',
+            headers: csrfHeaders(),
+            credentials: 'same-origin',
+            body: JSON.stringify({ endpoint: json.endpoint, keys: json.keys, contentEncoding: encoding }),
+        });
+
+        if (!response.ok) {
+            throw new Error('save failed');
+        }
+
+        this.$dispatch('push-subscription-changed');
+    },
+
+    async enable() {
+        this.busy = true;
+        this.error = null;
+
+        try {
+            const permission = await Notification.requestPermission();
+
+            if (permission !== 'granted') {
+                this.state = permission === 'denied' ? 'denied' : 'off';
+
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            const subscription =
+                (await registration.pushManager.getSubscription()) ||
+                (await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(vapidPublicKey) }));
+
+            await this.save(subscription);
+            this.state = 'on';
+        } catch {
+            this.error = 'Bildirişləri aktiv etmək alınmadı. Yenidən cəhd edin.';
+        } finally {
+            this.busy = false;
+        }
+    },
+
+    async disable() {
+        this.busy = true;
+        this.error = null;
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+
+            if (subscription) {
+                await fetch('/push-subscriptions', {
+                    method: 'DELETE',
+                    headers: csrfHeaders(),
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ endpoint: subscription.endpoint }),
+                });
+                await subscription.unsubscribe();
+            }
+
+            this.state = 'off';
+            this.$dispatch('push-subscription-changed');
+        } catch {
+            this.error = 'Söndürmək alınmadı. Yenidən cəhd edin.';
+        } finally {
+            this.busy = false;
+        }
+    },
+});
+
+/**
+ * Keep the home-screen icon badge in sync with overdue + today's payments.
+ */
+export function syncAppBadge(count) {
+    if (!('setAppBadge' in navigator)) {
+        return;
+    }
+
+    (count > 0 ? navigator.setAppBadge(count) : navigator.clearAppBadge()).catch(() => {});
+}

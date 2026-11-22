@@ -1,6 +1,6 @@
 import { Passkeys, PasskeyExistsError, UserCancelledError } from '@laravel/passkeys';
 import ApexCharts from 'apexcharts';
-import { registerServiceWorker, setUpPullToRefresh, setUpQuickAddLinks } from './pwa';
+import { pushSubscription, registerServiceWorker, setUpPullToRefresh, setUpQuickAddLinks, syncAppBadge } from './pwa';
 
 const formatMoney = (value, symbol) =>
     `${Number(value).toLocaleString('az-AZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${symbol}`;
@@ -75,6 +75,8 @@ document.addEventListener('alpine:init', () => {
     });
 
     document.addEventListener('livewire:navigated', () => Alpine.store('selection').clear());
+
+    Alpine.data('pushSubscription', pushSubscription);
 
     /**
      * Face ID / Touch ID login button on the login page.
@@ -196,3 +198,4 @@ document.addEventListener('alpine:init', () => {
 registerServiceWorker();
 setUpQuickAddLinks();
 document.addEventListener('DOMContentLoaded', setUpPullToRefresh);
+window.syncAppBadge = syncAppBadge;

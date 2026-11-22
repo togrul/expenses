@@ -6,10 +6,10 @@
  * - Livewire requests and every non-GET request are never cached: money figures must be fresh.
  * - Web Push: shows the notification and opens its URL on tap.
  */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const STATIC_CACHE = `maliyye-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
-const PRECACHE = [OFFLINE_URL, '/icons/icon-192.png', '/manifest.webmanifest'];
+const PRECACHE = [OFFLINE_URL, '/icons/icon-192.png', '/manifest.json'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting()));

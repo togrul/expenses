@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Behind Cloudflare + Coolify's Traefik: trust their X-Forwarded-* headers (https, client IP).
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             SetUserLocale::class,
         ]);

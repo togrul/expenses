@@ -16,6 +16,7 @@
         "
     >
         @php($overdueCount = app(\App\Services\StatsService::class)->overdue(auth()->user())['count'])
+        <div x-data x-init="window.syncAppBadge?.({{ $overdueCount }})" class="hidden"></div>
 
         <flux:sidebar sticky collapsible="mobile" class="border-e border-line bg-canvas px-4 py-5 max-lg:pt-[calc(1.25rem+env(safe-area-inset-top))] max-lg:pb-[calc(1.25rem+env(safe-area-inset-bottom))] lg:w-64">
             <flux:sidebar.header class="mb-4 px-1">
@@ -63,8 +64,8 @@
                 wire:navigate
                 @class([
                     'mb-3 flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200',
-                    'bg-surface text-ink ring-1 ring-line' => request()->routeIs('finance.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
-                    'text-muted hover:bg-surface/60 hover:text-ink' => ! request()->routeIs('finance.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
+                    'bg-surface text-ink ring-1 ring-line' => request()->routeIs('finance.edit', 'notifications.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
+                    'text-muted hover:bg-surface/60 hover:text-ink' => ! request()->routeIs('finance.edit', 'notifications.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
                 ])
             >
                 <flux:icon name="cog-6-tooth" variant="outline" class="size-[18px] text-faint" />

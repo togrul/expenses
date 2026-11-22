@@ -8,13 +8,13 @@ test('app pages ship the installable iPhone app metadata', function () {
     $this->actingAs(User::factory()->create())
         ->get(route('dashboard'))
         ->assertOk()
-        ->assertSee('rel="manifest" href="/manifest.webmanifest"', false)
+        ->assertSee('rel="manifest" href="/manifest.json"', false)
         ->assertSee('name="apple-mobile-web-app-capable" content="yes"', false)
         ->assertSee('viewport-fit=cover', false);
 });
 
 test('the web app manifest is standalone and its icons exist', function () {
-    $manifest = json_decode(file_get_contents(public_path('manifest.webmanifest')), true, flags: JSON_THROW_ON_ERROR);
+    $manifest = json_decode(file_get_contents(public_path('manifest.json')), true, flags: JSON_THROW_ON_ERROR);
 
     expect($manifest['display'])->toBe('standalone')
         ->and($manifest['start_url'])->toStartWith('/');
