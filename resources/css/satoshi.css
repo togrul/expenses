@@ -1,0 +1,36 @@
+/*
+ * Satoshi (with Azerbaijani glyphs), tuned to match Naukri: font smoothing left on `auto`
+ * (antialiased thins Satoshi on macOS), body text at weight 500 and -0.01em tracking instead
+ * of tracking-tight. Tabular figures (`tnum`) are switched off everywhere, so even a
+ * `tabular-nums` class (Flux's avatar has one) keeps the font's proportional digits.
+ */
+@font-face {
+  font-family: 'Satoshi';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('../fonts/satoshi/SatoshiAZ-Variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Satoshi';
+  font-style: italic;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('../fonts/satoshi/SatoshiAZ-VariableItalic.woff2') format('woff2');
+}
+
+@theme {
+    --default-font-feature-settings: 'tnum' 0;
+    --font-weight-normal: 500;
+    --tracking-tight: -0.01em;
+    --tracking-tighter: -0.01em;
+}
+
+@layer base {
+    body {
+        font-weight: 500;
+        -webkit-font-smoothing: auto;
+        -moz-osx-font-smoothing: auto;
+    }
+}

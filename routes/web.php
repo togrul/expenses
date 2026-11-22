@@ -1,0 +1,28 @@
+<?php
+
+use App\Http\Controllers\ExportTransactionsController;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::livewire('/', 'pages::dashboard')->name('dashboard');
+
+    Route::livewire('transactions', 'pages::transactions.index')->name('transactions.index');
+    Route::get('transactions/export', ExportTransactionsController::class)->name('transactions.export');
+
+    Route::livewire('upcoming', 'pages::upcoming.index')->name('upcoming.index');
+
+    Route::livewire('debts', 'pages::debts.index')->name('debts.index');
+    Route::livewire('loans', 'pages::debts.index')->defaults('kind', 'loan')->name('loans.index');
+    Route::livewire('loans/create', 'pages::debts.form')->defaults('kind', 'loan')->name('loans.create');
+    Route::livewire('loans/{debt}', 'pages::debts.show')->name('loans.show');
+    Route::livewire('loans/{debt}/edit', 'pages::debts.form')->name('loans.edit');
+    Route::livewire('debts/create', 'pages::debts.form')->name('debts.create');
+    Route::livewire('debts/{debt}', 'pages::debts.show')->name('debts.show');
+    Route::livewire('debts/{debt}/edit', 'pages::debts.form')->name('debts.edit');
+
+    Route::livewire('recurring', 'pages::recurring.index')->name('recurring.index');
+
+    Route::livewire('categories', 'pages::categories.index')->name('categories.index');
+});
+
+require __DIR__.'/settings.php';
