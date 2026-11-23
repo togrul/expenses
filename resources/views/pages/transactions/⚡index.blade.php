@@ -200,36 +200,28 @@ new #[Title('Əməliyyatlar')] class extends Component {
         <x-stat-card :label="__('Fərq')" icon="scale"><x-money :amount="$this->summary['net']" @class(['text-positive' => $this->summary['net'] > 0, 'text-negative' => $this->summary['net'] < 0]) /></x-stat-card>
     </div>
 
-    <div class="card mb-6 flex flex-wrap items-end gap-3 p-4">
-        <div class="flex items-center gap-1 rounded-xl border border-line bg-surface-2 p-1">
+    <div class="card mb-6 grid grid-cols-2 gap-3 p-4 sm:flex sm:flex-wrap sm:items-end">
+        <div class="col-span-2 flex items-center justify-between gap-1 rounded-xl border border-line bg-surface-2 p-1 sm:justify-start">
             <button type="button" wire:click="shiftMonth(-1)" class="flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink" aria-label="{{ __('Əvvəlki ay') }}"><flux:icon name="chevron-left" variant="micro" /></button>
-            <input type="month" wire:model.live="month" class="w-36 bg-transparent px-1 text-center text-sm font-medium text-ink outline-none dark:[color-scheme:dark]" aria-label="{{ __('Ay') }}" />
+            <input type="month" wire:model.live="month" class="min-w-0 flex-1 bg-transparent px-1 text-center sm:w-36 sm:flex-none text-sm font-medium text-ink outline-none dark:[color-scheme:dark]" aria-label="{{ __('Ay') }}" />
             <button type="button" wire:click="shiftMonth(1)" class="flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted transition hover:bg-surface hover:text-ink" aria-label="{{ __('Növbəti ay') }}"><flux:icon name="chevron-right" variant="micro" /></button>
         </div>
 
-        <flux:select wire:model.live="type" size="sm" class="!w-32" :aria-label="__('Növ')">
-            <flux:select.option value="">{{ __('Bütün növlər') }}</flux:select.option>
-            @foreach (\App\Enums\TransactionType::cases() as $case)
-                <flux:select.option :value="$case->value">{{ $case->label() }}</flux:select.option>
-            @endforeach
-        </flux:select>
+        <x-picker wire:model.live="type" size="sm" class="sm:w-36" :aria-label="__('Növ')" :options="[['value' => '', 'label' => __('Bütün növlər')], ...collect(\App\Enums\TransactionType::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label()])->all()]" />
 
-        <flux:select wire:model.live="categoryId" size="sm" class="!w-44" :aria-label="__('Kateqoriya')">
-            <flux:select.option value="">{{ __('Bütün kateqoriyalar') }}</flux:select.option>
-            @foreach ($this->categories as $category)
-                <flux:select.option :value="$category->id" wire:key="filter-category-{{ $category->id }}">{{ $category->name }}</flux:select.option>
-            @endforeach
-        </flux:select>
+        <x-picker wire:model.live="categoryId" size="sm" class="sm:w-48" :aria-label="__('Kateqoriya')" :options="[['value' => null, 'label' => __('Bütün kateqoriyalar')], ...$this->categories->map(fn ($category) => ['value' => $category->id, 'label' => $category->name, 'color' => $category->color])->all()]" />
 
-        <div class="flex items-center gap-1.5">
-            <flux:input type="date" size="sm" wire:model.live="from" class="!w-36" :aria-label="__('Başlanğıc')" />
+        <div class="col-span-2 flex items-center gap-1.5">
+            <flux:input type="date" size="sm" wire:model.live="from" class="min-w-0 flex-1 sm:!w-36 sm:flex-none" :aria-label="__('Başlanğıc')" />
             <span class="text-faint">–</span>
-            <flux:input type="date" size="sm" wire:model.live="to" class="!w-36" :aria-label="__('Son')" />
+            <flux:input type="date" size="sm" wire:model.live="to" class="min-w-0 flex-1 sm:!w-36 sm:flex-none" :aria-label="__('Son')" />
         </div>
 
-        <flux:input wire:model.live.debounce.400ms="search" size="sm" icon="magnifying-glass" :placeholder="__('Qeyd və ya kateqoriya…')" class="!w-52" />
+        <div class="col-span-2 flex items-center gap-3 sm:contents">
+            <flux:input wire:model.live.debounce.400ms="search" size="sm" icon="magnifying-glass" :placeholder="__('Qeyd və ya kateqoriya…')" class="min-w-0 flex-1 sm:!w-52 sm:flex-none" />
 
-        <flux:button variant="subtle" size="sm" wire:click="clearFilters" class="ms-auto">{{ __('Sıfırla') }}</flux:button>
+            <flux:button variant="subtle" size="sm" wire:click="clearFilters" class="ms-auto">{{ __('Sıfırla') }}</flux:button>
+        </div>
     </div>
 
     @if ($rows->isEmpty())
@@ -258,45 +250,71 @@ new #[Title('Əməliyyatlar')] class extends Component {
                         @php($isIncome = $transaction->type === \App\Enums\TransactionType::Income)
                         <div
                             wire:key="tx-{{ $transaction->id }}"
-                            x-data
-                            x-bind:class="$store.selection.has('tx-{{ $transaction->id }}') && 'bg-gold-soft'"
-                            class="group flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-surface-2/60"
+                            x-data="swipeRow"
+                            x-on:touchstart="touchStart($event)"
+                            x-on:touchmove="touchMove($event)"
+                            x-on:touchend="touchEnd()"
+                            x-on:click.capture="guardClick($event)"
+                            class="relative overflow-hidden"
                         >
-                            <x-select-toggle :key="'tx-'.$transaction->id" :amount="$isIncome ? $transaction->amount : -$transaction->amount" :label="$transaction->category?->name ?? ''" />
-
-                            <span class="flex size-10 shrink-0 items-center justify-center rounded-xl" style="background: {{ ($transaction->category->color ?? '#a1a1aa') }}1f; color: {{ $transaction->category->color ?? '#a1a1aa' }}">
-                                <flux:icon :name="$transaction->category->icon ?? ($isIncome ? 'arrow-down-left' : 'arrow-up-right')" variant="mini" />
-                            </span>
-
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="truncate text-sm font-medium text-ink">{{ $transaction->category->name ?? __('Kateqoriyasız') }}</span>
-                                    @if ($transaction->isLinked() && $transaction->sourceUrl())
-                                        <a href="{{ $transaction->sourceUrl() }}" wire:navigate class="inline-flex shrink-0 items-center gap-1 rounded-full bg-gold-soft px-2 py-0.5 text-[11px] font-medium text-gold hover:underline">
-                                            <flux:icon name="link" variant="micro" class="size-3" />{{ $transaction->sourceLabel() }}
+                            <div x-ref="actions" data-row-actions class="absolute inset-y-0 end-0 flex lg:hidden" x-bind:class="offset < 0 ? 'visible' : 'invisible'">
+                                <button type="button" class="row-action bg-zinc-500 dark:bg-zinc-600" wire:click="edit({{ $transaction->id }})" x-on:click="close()">
+                                    <flux:icon name="pencil-square" variant="outline" class="size-5" />{{ __('Redaktə') }}
+                                </button>
+                                @if ($transaction->isLinked())
+                                    @if ($transaction->sourceUrl())
+                                        <a href="{{ $transaction->sourceUrl() }}" wire:navigate.hover class="row-action bg-[#a8823d]">
+                                            <flux:icon name="link" variant="outline" class="size-5" />{{ __('Mənbə') }}
                                         </a>
                                     @endif
-                                </div>
-                                @if ($transaction->note)
-                                    <div class="truncate text-xs text-faint">{{ $transaction->note }}</div>
+                                @else
+                                    <button type="button" class="row-action bg-rose-600" wire:click="confirmDelete({{ $transaction->id }})" x-on:click="close()">
+                                        <flux:icon name="trash" variant="outline" class="size-5" />{{ __('Sil') }}
+                                    </button>
                                 @endif
                             </div>
+                            <div
+                                x-ref="content"
+                                x-bind:style="{ transform: offset ? 'translateX(' + offset + 'px)' : '' }"
+                                x-bind:class="$store.selection.has('tx-{{ $transaction->id }}') && 'is-selected'"
+                                class="swipe-content group relative flex items-center gap-4 bg-surface px-4 py-3.5 hover:bg-surface-2"
+                            >
+                                <x-select-toggle :key="'tx-'.$transaction->id" :amount="$isIncome ? $transaction->amount : -$transaction->amount" :label="$transaction->category?->name ?? ''" />
 
-                            <x-money :amount="$transaction->amount" signed :type="$transaction->type" @class(['text-[15px] font-semibold', 'text-positive' => $isIncome, 'text-ink' => ! $isIncome]) />
+                                <span class="flex size-10 shrink-0 items-center justify-center rounded-xl" style="background: {{ ($transaction->category->color ?? '#a1a1aa') }}1f; color: {{ $transaction->category->color ?? '#a1a1aa' }}">
+                                    <flux:icon :name="$transaction->category->icon ?? ($isIncome ? 'arrow-down-left' : 'arrow-up-right')" variant="mini" />
+                                </span>
 
-                            <flux:dropdown align="end">
-                                <flux:button size="sm" variant="subtle" icon="ellipsis-horizontal" :aria-label="__('Əməliyyatlar')" />
-                                <flux:menu>
-                                    <flux:menu.item icon="pencil-square" wire:click="edit({{ $transaction->id }})">{{ __('Redaktə et') }}</flux:menu.item>
-                                    @if ($transaction->isLinked())
-                                        @if ($transaction->sourceUrl())
-                                            <flux:menu.item icon="link" :href="$transaction->sourceUrl()" wire:navigate>{{ __('Mənbəyə keç') }}</flux:menu.item>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="truncate text-sm font-medium text-ink">{{ $transaction->category->name ?? __('Kateqoriyasız') }}</span>
+                                        @if ($transaction->isLinked() && $transaction->sourceUrl())
+                                            <a href="{{ $transaction->sourceUrl() }}" wire:navigate.hover class="inline-flex shrink-0 items-center gap-1 rounded-full bg-gold-soft px-2 py-0.5 text-[11px] font-medium text-gold hover:underline">
+                                                <flux:icon name="link" variant="micro" class="size-3" />{{ $transaction->sourceLabel() }}
+                                            </a>
                                         @endif
-                                    @else
-                                        <flux:menu.item icon="trash" variant="danger" wire:click="confirmDelete({{ $transaction->id }})">{{ __('Sil') }}</flux:menu.item>
+                                    </div>
+                                    @if ($transaction->note)
+                                        <div class="truncate text-xs text-faint">{{ $transaction->note }}</div>
                                     @endif
-                                </flux:menu>
-                            </flux:dropdown>
+                                </div>
+
+                                <x-money :amount="$transaction->amount" signed :type="$transaction->type" @class(['text-[15px] font-semibold', 'text-positive' => $isIncome, 'text-ink' => ! $isIncome]) />
+
+                                <flux:dropdown align="end" class="max-lg:hidden">
+                                    <flux:button size="sm" variant="subtle" icon="ellipsis-horizontal" :aria-label="__('Əməliyyatlar')" />
+                                    <flux:menu>
+                                        <flux:menu.item icon="pencil-square" wire:click="edit({{ $transaction->id }})">{{ __('Redaktə et') }}</flux:menu.item>
+                                        @if ($transaction->isLinked())
+                                            @if ($transaction->sourceUrl())
+                                                <flux:menu.item icon="link" :href="$transaction->sourceUrl()" wire:navigate.hover>{{ __('Mənbəyə keç') }}</flux:menu.item>
+                                            @endif
+                                        @else
+                                            <flux:menu.item icon="trash" variant="danger" wire:click="confirmDelete({{ $transaction->id }})">{{ __('Sil') }}</flux:menu.item>
+                                        @endif
+                                    </flux:menu>
+                                </flux:dropdown>
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -308,7 +326,7 @@ new #[Title('Əməliyyatlar')] class extends Component {
         </div>
     @endif
 
-    <flux:modal name="delete-transaction" class="w-full max-w-sm">
+    <flux:modal name="delete-transaction" class="sheet-on-mobile w-full max-w-sm">
         <div class="space-y-5">
             <flux:heading size="lg">{{ __('Əməliyyat silinsin?') }}</flux:heading>
             <flux:text>{{ __('Silinən əməliyyat statistikadan çıxarılacaq.') }}</flux:text>

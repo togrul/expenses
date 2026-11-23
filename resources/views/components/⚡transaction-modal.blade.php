@@ -159,25 +159,9 @@ new class extends Component {
                 @endforeach
             </div>
 
-            <flux:input
-                wire:model="amount"
-                :label="__('Məbləğ')"
-                inputmode="decimal"
-                placeholder="0,00"
-                autocomplete="off"
-                :disabled="$isLinked"
-                autofocus
-            >
-                <x-slot name="iconTrailing">
-                    <span class="text-sm text-zinc-500">{{ \App\Support\Money::symbol() }}</span>
-                </x-slot>
-            </flux:input>
+            <x-amount-input wire:model="amount" :label="__('Məbləğ')" :disabled="$isLinked" autofocus />
 
-            <flux:select wire:model.live="categoryId" :label="__('Kateqoriya')" :placeholder="__('Kateqoriya seçin')">
-                @foreach ($this->categories as $category)
-                    <flux:select.option :value="$category->id" wire:key="category-option-{{ $category->id }}">{{ $category->name }}</flux:select.option>
-                @endforeach
-            </flux:select>
+            <x-picker wire:model.live="categoryId" :label="__('Kateqoriya')" :placeholder="__('Kateqoriya seçin')" :options="$this->categories->map(fn ($category) => ['value' => $category->id, 'label' => $category->name, 'color' => $category->color])->all()" />
 
             @if ($this->quickCategories->isNotEmpty())
                 <div class="-mt-2 flex flex-wrap gap-1.5" aria-label="{{ __('Tez-tez istifadə olunan kateqoriyalar') }}">

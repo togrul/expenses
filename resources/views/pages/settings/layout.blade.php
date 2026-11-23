@@ -1,11 +1,12 @@
 <div class="flex items-start max-md:flex-col">
     <div class="me-10 w-full pb-4 md:w-[220px]">
         <flux:navlist aria-label="{{ __('Settings') }}">
-            <flux:navlist.item :href="route('finance.edit')" wire:navigate>{{ __('Maliyyə') }}</flux:navlist.item>
-            <flux:navlist.item :href="route('notifications.edit')" wire:navigate>{{ __('Bildirişlər') }}</flux:navlist.item>
-            <flux:navlist.item :href="route('profile.edit')" wire:navigate>{{ __('Profile') }}</flux:navlist.item>
-            <flux:navlist.item :href="route('security.edit')" wire:navigate>{{ __('Security') }}</flux:navlist.item>
-            <flux:navlist.item :href="route('appearance.edit')" wire:navigate>{{ __('Appearance') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('finance.edit')" wire:navigate.hover>{{ __('Maliyyə') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('notifications.edit')" wire:navigate.hover>{{ __('Bildirişlər') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('shortcuts.edit')" wire:navigate.hover>{{ __('Siri və qısayollar') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('profile.edit')" wire:navigate.hover>{{ __('Profile') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('security.edit')" wire:navigate.hover>{{ __('Security') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('appearance.edit')" wire:navigate.hover>{{ __('Görünüş') }}</flux:navlist.item>
         </flux:navlist>
     </div>
 

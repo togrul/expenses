@@ -11,7 +11,8 @@
 
 {{-- Installable app (PWA): iPhone "Add to Home Screen" --}}
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#09090b">
+<meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5f4f0" media="(prefers-color-scheme: light)">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
@@ -20,7 +20,7 @@
 
         <flux:sidebar sticky collapsible="mobile" class="border-e border-line bg-canvas px-4 py-5 max-lg:pt-[calc(1.25rem+env(safe-area-inset-top))] max-lg:pb-[calc(1.25rem+env(safe-area-inset-bottom))] lg:w-64">
             <flux:sidebar.header class="mb-4 px-1">
-                <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate />
+                <x-app-logo :sidebar="true" href="{{ route('dashboard') }}" wire:navigate.hover />
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
 
@@ -40,7 +40,7 @@
                     @php($isCurrent = request()->routeIs($item['active']))
                     <a
                         href="{{ route($item['route']) }}"
-                        wire:navigate
+                        wire:navigate.hover
                         @if ($isCurrent) aria-current="page" @endif
                         @class([
                             'group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200',
@@ -61,11 +61,11 @@
 
             <a
                 href="{{ route('finance.edit') }}"
-                wire:navigate
+                wire:navigate.hover
                 @class([
                     'mb-3 flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200',
-                    'bg-surface text-ink ring-1 ring-line' => request()->routeIs('finance.edit', 'notifications.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
-                    'text-muted hover:bg-surface/60 hover:text-ink' => ! request()->routeIs('finance.edit', 'notifications.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
+                    'bg-surface text-ink ring-1 ring-line' => request()->routeIs('finance.edit', 'notifications.edit', 'shortcuts.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
+                    'text-muted hover:bg-surface/60 hover:text-ink' => ! request()->routeIs('finance.edit', 'notifications.edit', 'shortcuts.edit', 'profile.edit', 'security.edit', 'appearance.edit'),
                 ])
             >
                 <flux:icon name="cog-6-tooth" variant="outline" class="size-[18px] text-faint" />
@@ -78,12 +78,26 @@
         </flux:sidebar>
 
         <!-- Mobile User Menu -->
-        <flux:header class="sticky top-0 z-30 border-b border-line bg-canvas/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
+        <flux:header data-mobile-header class="sticky top-0 z-30 border-b border-line bg-canvas/85 pt-[env(safe-area-inset-top)] backdrop-blur-xl lg:hidden">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
-            <x-app-logo href="{{ route('dashboard') }}" wire:navigate class="ms-2" />
+            <x-app-logo href="{{ route('dashboard') }}" wire:navigate.hover class="ms-2 transition-opacity duration-200" data-header-logo />
+
+            <span data-compact-title class="compact-title" aria-hidden="true"></span>
 
             <flux:spacer />
+
+            <button
+                type="button"
+                x-data
+                x-cloak
+                x-show="$store.offlineQueue.count"
+                x-on:click="$store.offlineQueue.flush()"
+                class="me-2 inline-flex cursor-pointer items-center gap-1 rounded-full bg-warning/15 px-2.5 py-1 text-[11px] font-semibold text-warning"
+            >
+                <span x-bind:class="$store.offlineQueue.syncing && 'animate-spin'" class="inline-flex"><flux:icon name="arrow-path" variant="micro" class="size-3.5" /></span>
+                <span x-text="$store.offlineQueue.count"></span> {{ __('gözləyir') }}
+            </button>
 
             <flux:dropdown position="top" align="end">
                 <flux:profile
@@ -111,7 +125,7 @@
                     <flux:menu.separator />
 
                     <flux:menu.radio.group>
-                        <flux:menu.item :href="route('finance.edit')" icon="cog" wire:navigate>
+                        <flux:menu.item :href="route('finance.edit')" icon="cog" wire:navigate.hover>
                             {{ __('Settings') }}
                         </flux:menu.item>
                     </flux:menu.radio.group>
@@ -150,11 +164,13 @@
                     </button>
                 @endif
                 @php($isCurrent = request()->routeIs($item['active']))
-                <a href="{{ route($item['route']) }}" wire:navigate @if ($isCurrent) aria-current="page" @endif @class([
-                    'relative flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-medium transition-colors',
-                    'bg-gold-soft text-gold' => $isCurrent,
-                    'text-faint' => ! $isCurrent,
-                ])>
+                <a
+                    href="{{ route($item['route']) }}"
+                    wire:navigate.hover
+                    data-tab-link
+                    @if ($isCurrent) aria-current="page" @endif
+                    class="relative flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-medium text-faint transition duration-150 select-none active:scale-90 aria-[current=page]:bg-gold-soft aria-[current=page]:text-gold"
+                >
                     <flux:icon :name="$item['icon']" variant="outline" class="size-5" />
                     {{ $item['short'] }}
                     @if ($item['route'] === 'upcoming.index' && $overdueCount > 0)
@@ -165,6 +181,10 @@
         </nav>
 
         <x-selection-bar />
+
+        <div class="offline-banner" role="status">{{ __('İnternet yoxdur — yeni əməliyyatlar telefonda saxlanılacaq') }}</div>
+
+        <x-offline-entry />
 
         <livewire:transaction-modal />
         <livewire:pay-modal />

@@ -186,15 +186,11 @@ new #[Title('Kateqoriyalar')] class extends Component {
         @endforeach
     </div>
 
-    <flux:modal wire:model.self="showForm" class="w-full max-w-sm">
+    <flux:modal wire:model.self="showForm" class="sheet-on-mobile w-full max-w-sm">
         <form wire:submit="save" class="space-y-5">
             <flux:heading size="lg">{{ $editingId ? __('Kateqoriyanı redaktə et') : __('Yeni kateqoriya') }}</flux:heading>
 
-            <flux:select wire:model="type" :label="__('Növ')" :disabled="(bool) $editingId">
-                @foreach (\App\Enums\TransactionType::cases() as $case)
-                    <flux:select.option :value="$case->value">{{ $case->label() }}</flux:select.option>
-                @endforeach
-            </flux:select>
+            <x-picker wire:model="type" :label="__('Növ')" :disabled="(bool) $editingId" :options="collect(\App\Enums\TransactionType::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label()])->all()" />
 
             <flux:input wire:model="name" :label="__('Ad')" required maxlength="80" />
 

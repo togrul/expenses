@@ -275,3 +275,496 @@ html {
         background: var(--line-strong);
     }
 }
+
+
+/*
+|--------------------------------------------------------------------------
+| Native-app feel (resources/js/native.js)
+|--------------------------------------------------------------------------
+*/
+
+html.dark {
+    color-scheme: dark;
+}
+
+html {
+    background: var(--canvas);
+}
+
+@media (pointer: coarse) {
+    a,
+    button {
+        -webkit-touch-callout: none;
+    }
+
+    nav,
+    button,
+    [data-tab-link] {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
+/* Page change: the new page rises in, the old one fades out (View Transitions, Safari 18+). */
+::view-transition-group(page) {
+    animation-duration: 0.26s;
+}
+
+::view-transition-old(page) {
+    animation: page-out 0.12s ease-in both;
+}
+
+::view-transition-new(page) {
+    animation: page-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes page-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes page-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+/* Skeleton while a slow page loads. */
+.page-skeleton {
+    display: none;
+}
+
+html.is-navigating [data-page] {
+    display: none;
+}
+
+html.is-navigating .page-skeleton {
+    display: block;
+    animation: fade-in 0.2s ease-out both;
+}
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background: var(--surface-2);
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.06), transparent);
+        animation: shimmer 1.3s ease-in-out infinite;
+    }
+}
+
+:root:not(.dark) .skeleton::after {
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7), transparent);
+}
+
+@keyframes shimmer {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+/* Livewire's navigation bar and in-page request bar, in gold, under the notch. */
+#nprogress .bar {
+    top: env(safe-area-inset-top) !important;
+    height: 2.5px !important;
+    background: var(--gold) !important;
+}
+
+#nprogress .peg {
+    box-shadow: 0 0 10px var(--gold), 0 0 5px var(--gold) !important;
+}
+
+#nprogress .spinner {
+    display: none !important;
+}
+
+html::after {
+    content: '';
+    position: fixed;
+    top: env(safe-area-inset-top);
+    left: 0;
+    z-index: 100;
+    width: 100%;
+    height: 2.5px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    background-size: 40% 100%;
+    background-repeat: no-repeat;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+html.is-busy::after {
+    opacity: 1;
+    animation: busy-bar 1s linear infinite;
+}
+
+@keyframes busy-bar {
+    from {
+        background-position: -40% 0;
+    }
+
+    to {
+        background-position: 140% 0;
+    }
+}
+
+/* Native date/month fields: left aligned and full height on iOS. */
+input[type='date'],
+input[type='month'] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    text-align: start;
+
+    &::-webkit-date-and-time-value {
+        text-align: start;
+        margin: 0;
+    }
+}
+
+/* Every Flux modal with .sheet-on-mobile slides up from the bottom on phones. */
+@media (max-width: 1023px) {
+    [data-flux-modal] > dialog.sheet-on-mobile {
+        transform: translateY(100%);
+        transition:
+            transform 0.2s ease-in,
+            opacity 0.2s,
+            display 0.2s allow-discrete,
+            overlay 0.2s allow-discrete;
+        overscroll-behavior: contain;
+    }
+
+    [data-flux-modal] > dialog.sheet-on-mobile[open] {
+        opacity: 1;
+        transform: translateY(0);
+        transition:
+            transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 0.15s,
+            display 0.34s allow-discrete,
+            overlay 0.34s allow-discrete;
+    }
+
+    @starting-style {
+        [data-flux-modal] > dialog.sheet-on-mobile[open] {
+            transform: translateY(100%);
+        }
+    }
+
+    [data-flux-modal] > dialog.sheet-on-mobile::backdrop {
+        background-color: rgb(0 0 0 / 0.55);
+    }
+}
+
+/* <x-picker> sheet. */
+dialog.picker-sheet {
+    position: fixed;
+    inset: auto 0 0;
+    display: none;
+    width: 100%;
+    max-width: 100%;
+    max-height: min(78dvh, 40rem);
+    margin: 0;
+    padding: 0 0 env(safe-area-inset-bottom);
+    flex-direction: column;
+    border: 1px solid var(--line-strong);
+    border-bottom: 0;
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 -20px 60px -20px rgb(0 0 0 / 0.6);
+    overscroll-behavior: contain;
+
+    &[open] {
+        display: flex;
+        animation: sheet-up 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    &.is-closing {
+        animation: sheet-down 0.18s ease-in forwards;
+    }
+
+    &::backdrop {
+        background: rgb(0 0 0 / 0.55);
+        animation: fade-in 0.25s ease-out;
+    }
+
+    &.is-closing::backdrop {
+        animation: fade-out 0.18s ease-in forwards;
+    }
+}
+
+@media (min-width: 1024px) {
+    dialog.picker-sheet {
+        inset: 0;
+        width: 22rem;
+        margin: auto;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--line-strong);
+        border-radius: 1rem;
+
+        &[open] {
+            animation: pop-in 0.18s ease-out;
+        }
+
+        &.is-closing {
+            animation: fade-out 0.15s ease-in forwards;
+        }
+    }
+
+    .picker-handle {
+        visibility: hidden;
+        height: 0.5rem !important;
+        margin: 0 !important;
+    }
+}
+
+.picker-handle {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 0.3rem;
+    margin: 0.6rem auto 0.5rem;
+    border-radius: 9999px;
+    background: var(--line-strong);
+}
+
+.picker-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 0.5rem 0.75rem;
+}
+
+.picker-option {
+    display: flex;
+    width: 100%;
+    min-height: 3rem;
+    cursor: pointer;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.875rem;
+    padding: 0.6rem 0.875rem;
+    text-align: start;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    transition: background-color 0.15s;
+
+    &:hover,
+    &:active {
+        background: var(--surface-2);
+    }
+
+    & .picker-check {
+        color: var(--gold);
+        opacity: 0;
+    }
+
+    &[aria-selected='true'] {
+        background: var(--gold-soft);
+        color: var(--gold);
+
+        & .picker-check {
+            opacity: 1;
+        }
+    }
+}
+
+@keyframes sheet-up {
+    from {
+        transform: translateY(100%);
+    }
+}
+
+@keyframes sheet-down {
+    to {
+        transform: translateY(100%);
+    }
+}
+
+@keyframes pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+}
+
+@keyframes fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    dialog.picker-sheet,
+    dialog.picker-sheet::backdrop,
+    .page-skeleton {
+        animation: none !important;
+    }
+}
+
+
+/* iOS large title: the page heading shows small in the header once scrolled away. */
+.compact-title {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    display: flex;
+    height: 3.5rem;
+    max-width: 52%;
+    align-items: center;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, 6px);
+    transition:
+        opacity 0.2s,
+        transform 0.2s;
+}
+
+[data-mobile-header].is-compact {
+    & .compact-title {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+
+    & [data-header-logo] {
+        opacity: 0;
+    }
+}
+
+/* Edge swipe back (resources/js/native.js). */
+.is-edge-dragging {
+    box-shadow: -24px 0 40px -12px rgb(0 0 0 / 0.5);
+}
+
+.edge-back {
+    position: fixed;
+    top: 50%;
+    left: 0.25rem;
+    z-index: 70;
+    display: flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    color: var(--faint);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(0, -50%);
+
+    & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    &.is-ready {
+        background: var(--gold);
+        border-color: transparent;
+        color: #09090b;
+    }
+}
+
+/* Swipe-to-reveal list rows. */
+.swipe-content {
+    transition:
+        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+        background-color 0.15s;
+
+    &.is-selected {
+        background-image: linear-gradient(var(--gold-soft), var(--gold-soft));
+    }
+}
+
+.row-action {
+    display: flex;
+    width: 4.75rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Calculator keypad of <x-amount-input>. */
+.amount-key {
+    display: flex;
+    height: 3.25rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.875rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--ink);
+    touch-action: manipulation;
+    transition:
+        transform 0.08s,
+        background-color 0.08s;
+
+    &:active {
+        transform: scale(0.94);
+        background: var(--line-strong);
+    }
+
+    &.is-operator {
+        color: var(--gold);
+    }
+
+    &.is-done {
+        background: var(--gold);
+        border-color: transparent;
+        color: #09090b;
+    }
+}
+
+/* Offline: a banner under the header. */
+.offline-banner {
+    position: fixed;
+    inset-inline: 0;
+    top: calc(env(safe-area-inset-top) + 3.5rem);
+    z-index: 29;
+    display: none;
+    padding: 0.4rem 1rem;
+    background: color-mix(in srgb, var(--warning) 18%, var(--canvas));
+    color: var(--warning);
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+}
+
+html.is-offline .offline-banner {
+    display: block;
+}
+
+@media (min-width: 1024px) {
+    .offline-banner {
+        top: 0;
+        left: 16rem;
+    }
+}

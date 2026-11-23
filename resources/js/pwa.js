@@ -114,7 +114,7 @@ const urlBase64ToUint8Array = (base64) => {
     return Uint8Array.from([...raw].map((char) => char.charCodeAt(0)));
 };
 
-const csrfHeaders = () => ({
+export const csrfHeaders = () => ({
     'Content-Type': 'application/json',
     Accept: 'application/json',
     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',

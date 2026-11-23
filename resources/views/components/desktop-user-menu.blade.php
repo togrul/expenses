@@ -19,7 +19,7 @@
         </div>
         <flux:menu.separator />
         <flux:menu.radio.group>
-            <flux:menu.item :href="route('profile.edit')" icon="user" wire:navigate>
+            <flux:menu.item :href="route('profile.edit')" icon="user" wire:navigate.hover>
                 {{ __('Profile') }}
             </flux:menu.item>
             <form method="POST" action="{{ route('logout') }}" class="w-full">

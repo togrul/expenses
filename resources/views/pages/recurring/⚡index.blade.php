@@ -450,7 +450,7 @@ new #[Title('Daimi ödənişlər')] class extends Component {
         </div>
     @endif
 
-    <flux:modal wire:model.self="showForm" class="w-full max-w-lg">
+    <flux:modal wire:model.self="showForm" class="sheet-on-mobile w-full max-w-lg">
         <form wire:submit="save" class="space-y-5">
             <flux:heading size="lg">{{ $editingId ? __('Daimi ödənişi redaktə et') : __('Yeni daimi ödəniş') }}</flux:heading>
 
@@ -463,35 +463,19 @@ new #[Title('Daimi ödənişlər')] class extends Component {
 
             <flux:checkbox wire:model="isVariable" :label="__('Məbləğ dəyişkəndir')" :description="__('məs. işıq pulu — ödəyəndə faktiki məbləğ soruşulacaq')" />
 
-            <flux:select wire:model="categoryId" :label="__('Kateqoriya')" :placeholder="__('Kateqoriya seçin')">
-                @foreach ($this->categories as $category)
-                    <flux:select.option :value="$category->id" wire:key="rc-{{ $category->id }}">{{ $category->name }}</flux:select.option>
-                @endforeach
-            </flux:select>
+            <x-picker wire:model="categoryId" :label="__('Kateqoriya')" :placeholder="__('Kateqoriya seçin')" :options="[['value' => null, 'label' => __('Kateqoriyasız')], ...$this->categories->map(fn ($category) => ['value' => $category->id, 'label' => $category->name, 'color' => $category->color])->all()]" />
 
             <div class="grid gap-4 sm:grid-cols-2">
-                <flux:select wire:model.live="frequency" :label="__('Tezlik')">
-                    @foreach (\App\Enums\Frequency::cases() as $case)
-                        <flux:select.option :value="$case->value">{{ $case->label() }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                <x-picker wire:model.live="frequency" :label="__('Tezlik')" :options="collect(\App\Enums\Frequency::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label()])->all()" />
                 <flux:input wire:model="interval" type="number" min="1" max="24" :label="__('Hər neçə (interval)')" />
             </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
                 @if ($frequency === 'weekly')
-                    <flux:select wire:model="dayOfWeek" :label="__('Həftənin günü')">
-                        @foreach (range(1, 7) as $day)
-                            <flux:select.option :value="$day">{{ ucfirst(now()->startOfWeek()->addDays($day - 1)->translatedFormat('l')) }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
+                    <x-picker wire:model="dayOfWeek" :label="__('Həftənin günü')" :options="collect(range(1, 7))->map(fn ($day) => ['value' => $day, 'label' => ucfirst(now()->startOfWeek()->addDays($day - 1)->translatedFormat('l'))])->all()" />
                 @else
                     @if ($frequency === 'yearly')
-                        <flux:select wire:model="monthOfYear" :label="__('Ay')">
-                            @foreach (range(1, 12) as $m)
-                                <flux:select.option :value="$m">{{ ucfirst(now()->startOfYear()->setMonth($m)->translatedFormat('F')) }}</flux:select.option>
-                            @endforeach
-                        </flux:select>
+                        <x-picker wire:model="monthOfYear" :label="__('Ay')" :options="collect(range(1, 12))->map(fn ($m) => ['value' => $m, 'label' => ucfirst(now()->startOfYear()->setMonth($m)->translatedFormat('F'))])->all()" />
                     @endif
                     <flux:input wire:model="dayOfMonth" type="number" min="1" max="31" :label="__('Ayın günü')" :description="__('31 seçilsə, qısa aylarda ayın son günü')" />
                 @endif
@@ -522,7 +506,7 @@ new #[Title('Daimi ödənişlər')] class extends Component {
         </form>
     </flux:modal>
 
-    <flux:modal name="delete-recurring" class="w-full max-w-sm">
+    <flux:modal name="delete-recurring" class="sheet-on-mobile w-full max-w-sm">
         <div class="space-y-5">
             <flux:heading size="lg">{{ __('Daimi ödəniş silinsin?') }}</flux:heading>
             <flux:text>{{ __('Gözləyən ödənişlər silinəcək. Artıq ödənilmiş ödənişlər və xərclər tarixçədə qalacaq.') }}</flux:text>

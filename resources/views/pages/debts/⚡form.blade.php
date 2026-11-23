@@ -275,7 +275,7 @@ new #[Title('Borc')] class extends Component {
 }; ?>
 
 <div class="max-w-2xl">
-    <a href="{{ $debt ? $debt->url() : \App\Models\Debt::indexUrl($kind) }}" wire:navigate class="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-ink">
+    <a href="{{ $debt ? $debt->url() : \App\Models\Debt::indexUrl($kind) }}" wire:navigate.hover class="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-ink">
         <flux:icon name="arrow-left" variant="micro" /> {{ __('Geri') }}
     </a>
 
@@ -301,11 +301,7 @@ new #[Title('Borc')] class extends Component {
                     <flux:input wire:model.live.debounce.400ms="termMonths" type="number" min="1" max="480" :label="__('Müddət (ay)')" required :disabled="$termsLocked" />
                 </div>
 
-                <flux:select wire:model.live="scheduleType" :label="__('Qrafik növü')" :disabled="$termsLocked" :description="__('Bank “düşən faiz” deyirsə və hər ay eyni məbləğ ödəyirsinizsə — Annuitet.')">
-                    @foreach (\App\Enums\LoanScheduleType::cases() as $case)
-                        <flux:select.option :value="$case->value">{{ $case->label() }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                <x-picker wire:model.live="scheduleType" :label="__('Qrafik növü')" :disabled="$termsLocked" :description="__('Bank “düşən faiz” deyirsə və hər ay eyni məbləğ ödəyirsinizsə — Annuitet.')" :options="collect(\App\Enums\LoanScheduleType::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label()])->all()" />
 
                 <div class="grid gap-5 sm:grid-cols-2">
                     <flux:input wire:model.live="startedOn" type="date" :label="__('Kreditin alındığı tarix')" :disabled="$termsLocked" />
@@ -321,11 +317,7 @@ new #[Title('Borc')] class extends Component {
                         @if ($scheduleType === 'annuity')
                             <flux:input wire:model.live.debounce.400ms="monthlyPayment" :label="__('Aylıq ödəniş (bankın qrafikindən)')" inputmode="decimal" :placeholder="$this->loanPreview['standard'] ?? null ? \App\Support\Money::toInput($this->loanPreview['standard']) : '0,00'" :disabled="$termsLocked" :description="__('Boş qalsa avtomatik hesablanır')" />
                         @endif
-                        <flux:select wire:model.live="interestMethod" :label="__('Faizin hesablanması')" :disabled="$termsLocked" :description="__('Günlük üsul üçün alınma tarixi lazımdır')">
-                            @foreach (\App\Enums\InterestMethod::cases() as $case)
-                                <flux:select.option :value="$case->value">{{ $case->label() }}</flux:select.option>
-                            @endforeach
-                        </flux:select>
+                        <x-picker wire:model.live="interestMethod" :label="__('Faizin hesablanması')" :disabled="$termsLocked" :description="__('Günlük üsul üçün alınma tarixi lazımdır')" :options="collect(\App\Enums\InterestMethod::cases())->map(fn ($case) => ['value' => $case->value, 'label' => $case->label()])->all()" />
                     </div>
                     <div class="mt-6 border-t border-line pt-5">
                         <flux:checkbox wire:model.live="shiftWeekends" :disabled="$termsLocked" :label="__('Həftəsonuna düşən ödəniş növbəti iş gününə keçir')" :description="__('Bank qrafikində şənbə/bazar tarixləri bazar ertəsinə keçirsə, işarələyin')" />
@@ -408,7 +400,7 @@ new #[Title('Borc')] class extends Component {
         @endif
 
         <div class="flex justify-end gap-2">
-            <flux:button variant="ghost" :href="$debt ? $debt->url() : \App\Models\Debt::indexUrl($kind)" wire:navigate>{{ __('Ləğv et') }}</flux:button>
+            <flux:button variant="ghost" :href="$debt ? $debt->url() : \App\Models\Debt::indexUrl($kind)" wire:navigate.hover>{{ __('Ləğv et') }}</flux:button>
             <flux:button type="submit" variant="primary">{{ __('Yadda saxla') }}</flux:button>
         </div>
     </form>

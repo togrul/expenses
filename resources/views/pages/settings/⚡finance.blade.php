@@ -60,28 +60,13 @@ new #[Title('Maliyyə ayarları')] class extends Component {
 
     <x-pages::settings.layout :heading="__('Maliyyə')" :subheading="__('Valyuta, tarix formatı və məlumatların ixracı')">
         <form wire:submit="save" class="my-6 w-full space-y-6">
-            <flux:select wire:model="currency" :label="__('Valyuta')" :description="__('Yeni qeydlər bu valyuta ilə saxlanılır.')">
-                @foreach (config('finance.currencies') as $code => $symbol)
-                    <flux:select.option :value="$code">{{ $code }} ({{ $symbol }})</flux:select.option>
-                @endforeach
-            </flux:select>
+            <x-picker wire:model="currency" :label="__('Valyuta')" :description="__('Yeni qeydlər bu valyuta ilə saxlanılır.')" :options="collect(config('finance.currencies'))->map(fn ($symbol, $code) => ['value' => $code, 'label' => $code.' ('.$symbol.')'])->values()->all()" />
 
-            <flux:select wire:model="dateFormat" :label="__('Tarix formatı')">
-                @foreach (config('finance.date_formats') as $format)
-                    <flux:select.option :value="$format">{{ $format }} — {{ today()->format($format) }}</flux:select.option>
-                @endforeach
-            </flux:select>
+            <x-picker wire:model="dateFormat" :label="__('Tarix formatı')" :options="collect(config('finance.date_formats'))->map(fn ($format) => ['value' => $format, 'label' => today()->format($format), 'description' => $format])->all()" />
 
-            <flux:select wire:model="weekStartsOn" :label="__('Həftənin ilk günü')">
-                <flux:select.option value="1">{{ __('Bazar ertəsi') }}</flux:select.option>
-                <flux:select.option value="7">{{ __('Bazar') }}</flux:select.option>
-            </flux:select>
+            <x-picker wire:model="weekStartsOn" :label="__('Həftənin ilk günü')" :options="[['value' => 1, 'label' => __('Bazar ertəsi')], ['value' => 7, 'label' => __('Bazar')]]" />
 
-            <flux:select wire:model="locale" :label="__('Dil')">
-                @foreach (config('finance.locales') as $code => $label)
-                    <flux:select.option :value="$code">{{ $label }}</flux:select.option>
-                @endforeach
-            </flux:select>
+            <x-picker wire:model="locale" :label="__('Dil')" :options="collect(config('finance.locales'))->map(fn ($label, $code) => ['value' => $code, 'label' => $label])->values()->all()" />
 
             <flux:button variant="primary" type="submit">{{ __('Yadda saxla') }}</flux:button>
         </form>

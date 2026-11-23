@@ -12,6 +12,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('settings/appearance', 'pages::settings.appearance')->name('appearance.edit');
     Route::livewire('settings/finance', 'pages::settings.finance')->name('finance.edit');
     Route::livewire('settings/notifications', 'pages::settings.notifications')->name('notifications.edit');
+    Route::livewire('settings/shortcuts', 'pages::settings.shortcuts')->name('shortcuts.edit');
 
     Route::livewire('settings/security', 'pages::settings.security')
         ->middleware([

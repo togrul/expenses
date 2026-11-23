@@ -2,12 +2,14 @@
  * Maliyyə service worker.
  *
  * - Build assets (/build/*, hashed) and icons: cache-first.
- * - Page navigations: always network; an offline fallback page when there is no connection.
+ * - Page navigations: network first; the last copy of each page is kept so the app still opens
+ *   offline (entries made then are queued on the phone and synced later), else the offline page.
  * - Livewire requests and every non-GET request are never cached: money figures must be fresh.
  * - Web Push: shows the notification and opens its URL on tap.
  */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const STATIC_CACHE = `maliyye-static-${VERSION}`;
+const PAGES_CACHE = 'maliyye-pages';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = [OFFLINE_URL, '/icons/icon-192.png', '/manifest.json'];
 
@@ -19,7 +21,7 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches
             .keys()
-            .then((keys) => Promise.all(keys.filter((key) => key !== STATIC_CACHE).map((key) => caches.delete(key))))
+            .then((keys) => Promise.all(keys.filter((key) => key !== STATIC_CACHE && key !== PAGES_CACHE).map((key) => caches.delete(key))))
             .then(() => self.clients.claim()),
     );
 });
@@ -56,7 +58,24 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (request.mode === 'navigate') {
-        event.respondWith(fetch(request).catch(() => caches.match(OFFLINE_URL)));
+        event.respondWith(
+            fetch(request)
+                .then((response) => {
+                    const isPage = response.ok && !response.redirected && (response.headers.get('content-type') || '').includes('text/html');
+
+                    if (isPage && url.origin === self.location.origin) {
+                        const copy = response.clone();
+                        caches.open(PAGES_CACHE).then((cache) => cache.put(url.pathname, copy));
+                    }
+
+                    return response;
+                })
+                .catch(async () => {
+                    const cache = await caches.open(PAGES_CACHE);
+
+                    return (await cache.match(url.pathname)) || (await cache.match('/')) || caches.match(OFFLINE_URL);
+                }),
+        );
     }
 });
 

@@ -1,6 +1,19 @@
 import { Passkeys, PasskeyExistsError, UserCancelledError } from '@laravel/passkeys';
 import ApexCharts from 'apexcharts';
-import { pushSubscription, registerServiceWorker, setUpPullToRefresh, setUpQuickAddLinks, syncAppBadge } from './pwa';
+import {
+    amountPad,
+    offlineEntry,
+    offlineQueueStore,
+    picker,
+    setUpCompactTitle,
+    setUpEdgeSwipeBack,
+    setUpNavigationFeedback,
+    setUpOfflineMode,
+    setUpSheetGestures,
+    setUpSystemTheme,
+    swipeRow,
+} from './native';
+import { csrfHeaders, pushSubscription, registerServiceWorker, setUpPullToRefresh, setUpQuickAddLinks, syncAppBadge } from './pwa';
 
 const formatMoney = (value, symbol) =>
     `${Number(value).toLocaleString('az-AZ', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} ${symbol}`;
@@ -77,6 +90,11 @@ document.addEventListener('alpine:init', () => {
     document.addEventListener('livewire:navigated', () => Alpine.store('selection').clear());
 
     Alpine.data('pushSubscription', pushSubscription);
+    Alpine.data('picker', picker);
+    Alpine.data('swipeRow', swipeRow);
+    Alpine.data('amountPad', amountPad);
+    Alpine.data('offlineEntry', offlineEntry);
+    Alpine.store('offlineQueue', offlineQueueStore(csrfHeaders));
 
     /**
      * Face ID / Touch ID login button on the login page.
@@ -196,6 +214,12 @@ document.addEventListener('alpine:init', () => {
 });
 
 registerServiceWorker();
+setUpNavigationFeedback();
+setUpSheetGestures();
+setUpEdgeSwipeBack();
+setUpCompactTitle();
+setUpSystemTheme();
+setUpOfflineMode();
 setUpQuickAddLinks();
 document.addEventListener('DOMContentLoaded', setUpPullToRefresh);
 window.syncAppBadge = syncAppBadge;

@@ -155,21 +155,17 @@ new class extends Component {
 }; ?>
 
 <div>
-    <flux:modal wire:model.self="showPay" class="w-full max-w-sm">
+    <flux:modal wire:model.self="showPay" class="sheet-on-mobile w-full max-w-sm">
         <form wire:submit="pay" class="space-y-5">
             <div>
                 <flux:heading size="lg">{{ __('Ödənişi təsdiqlə') }}</flux:heading>
                 <flux:text class="mt-1">{{ $title }}</flux:text>
             </div>
 
-            <flux:input wire:model="amount" :label="__('Məbləğ')" inputmode="decimal" placeholder="0,00" autocomplete="off" autofocus
+            <x-amount-input wire:model="amount" :label="__('Məbləğ')" autofocus
                 :description="$isVariable
                     ? __('Məbləğ dəyişkəndir — faktiki məbləği yazın.')
-                    : ($kind === 'debt_payment' ? __('Az yazsanız, qalan hissə üçün yeni hissə yaranacaq.') : null)">
-                <x-slot name="iconTrailing">
-                    <span class="text-sm text-zinc-500">{{ \App\Support\Money::symbol() }}</span>
-                </x-slot>
-            </flux:input>
+                    : ($kind === 'debt_payment' ? __('Az yazsanız, qalan hissə üçün yeni hissə yaranacaq.') : null)" />
 
             <flux:input wire:model="paidOn" type="date" :label="__('Ödəniş tarixi')" />
 
@@ -184,7 +180,7 @@ new class extends Component {
         </form>
     </flux:modal>
 
-    <flux:modal wire:model.self="showUndo" class="w-full max-w-sm">
+    <flux:modal wire:model.self="showUndo" class="sheet-on-mobile w-full max-w-sm">
         <div class="space-y-5">
             <div>
                 <flux:heading size="lg">{{ __('Ödənişi geri al?') }}</flux:heading>

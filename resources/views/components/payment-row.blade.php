@@ -67,7 +67,7 @@
     <div class="min-w-0 flex-1">
         <div @class(['truncate text-sm font-medium', 'text-faint line-through decoration-line-strong' => $paid || $skipped, 'text-ink' => ! $paid && ! $skipped])>
             @if ($href)
-                <a href="{{ $href }}" wire:navigate class="hover:text-gold">{{ $title }}</a>
+                <a href="{{ $href }}" wire:navigate.hover class="hover:text-gold">{{ $title }}</a>
             @else
                 {{ $title }}
             @endif

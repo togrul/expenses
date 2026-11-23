@@ -45,3 +45,15 @@ test('the quick add sheet offers the most used categories of the chosen type', f
 
     expect($component->instance()->quickCategories)->toBeEmpty();
 });
+
+test('the category field is a tappable picker bound to the Livewire property', function () {
+    $user = User::factory()->create();
+    $food = $user->categories()->where('name', 'Qida')->sole();
+
+    Livewire::actingAs($user)->test('transaction-modal')
+        ->call('create')
+        ->assertSeeHtml('wire:model.live="categoryId"')
+        ->assertSeeHtml('data-value="'.$food->id.'"')
+        ->assertSeeHtml('data-label="Qida"')
+        ->assertDontSeeHtml('<select');
+});

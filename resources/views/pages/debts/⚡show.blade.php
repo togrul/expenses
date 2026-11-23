@@ -225,7 +225,7 @@ new class extends Component {
 @php($loan = $debt->isLoan() ? $debt->loanSummary() : null)
 
 <div class="max-w-5xl">
-    <a href="{{ \App\Models\Debt::indexUrl($debt->kind) }}" wire:navigate class="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-ink">
+    <a href="{{ \App\Models\Debt::indexUrl($debt->kind) }}" wire:navigate.hover class="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition hover:text-ink">
         <flux:icon name="arrow-left" variant="micro" /> {{ $debt->isLoan() ? __('Kreditlər') : __('Borclar') }}
     </a>
 
@@ -241,7 +241,7 @@ new class extends Component {
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <flux:button variant="ghost" icon="pencil-square" :href="$debt->url('edit')" wire:navigate>{{ __('Redaktə') }}</flux:button>
+            <flux:button variant="ghost" icon="pencil-square" :href="$debt->url('edit')" wire:navigate.hover>{{ __('Redaktə') }}</flux:button>
             <flux:modal.trigger name="delete-debt">
                 <flux:button variant="ghost" icon="trash" :aria-label="__('Sil')" />
             </flux:modal.trigger>
@@ -447,7 +447,7 @@ new class extends Component {
     @endif
 
     {{-- Edit installment --}}
-    <flux:modal name="edit-installment" class="w-full max-w-sm">
+    <flux:modal name="edit-installment" class="sheet-on-mobile w-full max-w-sm">
         <form wire:submit="saveInstallment" class="space-y-5">
             <div>
                 <flux:heading size="lg">{{ __('Hissəni redaktə et') }}</flux:heading>
@@ -470,7 +470,7 @@ new class extends Component {
     </flux:modal>
 
     {{-- Ad hoc payment --}}
-    <flux:modal name="ad-hoc-payment" class="w-full max-w-sm">
+    <flux:modal name="ad-hoc-payment" class="sheet-on-mobile w-full max-w-sm">
         <form wire:submit="payAdHoc" class="space-y-5">
             <div>
                 <flux:heading size="lg">{{ __('Ödəniş et') }}</flux:heading>
@@ -487,7 +487,7 @@ new class extends Component {
     </flux:modal>
 
     {{-- Add a single installment --}}
-    <flux:modal name="add-installment" class="w-full max-w-sm">
+    <flux:modal name="add-installment" class="sheet-on-mobile w-full max-w-sm">
         <form wire:submit="addInstallment" class="space-y-5">
             <flux:heading size="lg">{{ __('Hissə əlavə et') }}</flux:heading>
             <flux:input wire:model="installmentAmount" :label="__('Məbləğ')" inputmode="decimal" placeholder="0,00" autofocus />
@@ -501,7 +501,7 @@ new class extends Component {
     </flux:modal>
 
     {{-- Schedule generator --}}
-    <flux:modal name="generate-schedule" class="w-full max-w-sm">
+    <flux:modal name="generate-schedule" class="sheet-on-mobile w-full max-w-sm">
         <form wire:submit="generateSchedule" class="space-y-5">
             <div>
                 <flux:heading size="lg">{{ __('Hissələri avtomatik yarat') }}</flux:heading>
@@ -516,7 +516,7 @@ new class extends Component {
         </form>
     </flux:modal>
 
-    <flux:modal name="delete-debt" class="w-full max-w-sm">
+    <flux:modal name="delete-debt" class="sheet-on-mobile w-full max-w-sm">
         <div class="space-y-5">
             <flux:heading size="lg">{{ __('Borc silinsin?') }}</flux:heading>
             <flux:text>{{ __('Borc, onun hissələri və ondan yaranmış xərc əməliyyatları silinəcək.') }}</flux:text>

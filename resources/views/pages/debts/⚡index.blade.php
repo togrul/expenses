@@ -128,7 +128,7 @@ new class extends Component {
         :subheading="$this->isLoan() ? __('Bank kreditləri: əsas borc, faiz və aylıq ödəniş qrafiki') : __('Dostlara, tanışlara və mağazalara olan borclar')"
     >
         <x-slot name="actions">
-            <flux:button icon="plus" variant="primary" :href="$createUrl" wire:navigate>{{ $this->isLoan() ? __('Kredit əlavə et') : __('Borc əlavə et') }}</flux:button>
+            <flux:button icon="plus" variant="primary" :href="$createUrl" wire:navigate.hover>{{ $this->isLoan() ? __('Kredit əlavə et') : __('Borc əlavə et') }}</flux:button>
         </x-slot>
     </x-page-header>
 
@@ -209,7 +209,7 @@ new class extends Component {
                 : ($status === 'closed' ? __('Bağlanmış qeyd yoxdur') : ($this->isLoan() ? __('Hələ kredit yoxdur') : __('Hələ borc yoxdur')))"
             :text="$this->isLoan() ? __('Bank kreditini əlavə edin — qrafik, faiz və qalıq avtomatik hesablanacaq.') : __('Borcları və onların hissə-hissə ödənişini burada izləyin.')"
         >
-            <flux:button size="sm" icon="plus" variant="primary" :href="$createUrl" wire:navigate>{{ $this->isLoan() ? __('Kredit əlavə et') : __('Borc əlavə et') }}</flux:button>
+            <flux:button size="sm" icon="plus" variant="primary" :href="$createUrl" wire:navigate.hover>{{ $this->isLoan() ? __('Kredit əlavə et') : __('Borc əlavə et') }}</flux:button>
         </x-empty-state>
     @else
         <div class="grid gap-5 md:grid-cols-2 2xl:grid-cols-3">
@@ -225,7 +225,7 @@ new class extends Component {
                     @class(['card card-hover group relative flex flex-col p-5', 'opacity-70' => $debtStatus === \App\Enums\DebtStatus::Paid])
                 >
                     {{-- Stretched link: the whole card opens the item, the select toggle sits above it. --}}
-                    <a href="{{ $debt->url() }}" wire:navigate class="absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-2 focus-visible:outline-gold" aria-label="{{ $debt->displayName() }}"></a>
+                    <a href="{{ $debt->url() }}" wire:navigate.hover class="absolute inset-0 z-0 rounded-[inherit] focus-visible:outline-2 focus-visible:outline-gold" aria-label="{{ $debt->displayName() }}"></a>
 
                     <div class="pointer-events-none flex items-start gap-3">
                         <x-initials :name="$debt->counterparty" />

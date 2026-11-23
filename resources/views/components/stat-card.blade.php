@@ -10,7 +10,7 @@
     $tag = $href ? 'a' : 'div';
 @endphp
 
-<{{ $tag }} @if ($href) href="{{ $href }}" wire:navigate @endif {{ $attributes->class(['card relative overflow-hidden p-5', 'card-hover' => $href, 'ring-1 ring-negative/30' => $tone === 'negative']) }}>
+<{{ $tag }} @if ($href) href="{{ $href }}" wire:navigate.hover @endif {{ $attributes->class(['card relative overflow-hidden p-5', 'card-hover' => $href, 'ring-1 ring-negative/30' => $tone === 'negative']) }}>
     <div class="flex items-center justify-between gap-2">
         <span class="eyebrow">{{ $label }}</span>
         @if ($icon)

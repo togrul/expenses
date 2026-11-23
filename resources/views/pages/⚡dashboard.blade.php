@@ -176,7 +176,7 @@ new #[Title('Panel')] class extends Component {
         </div>
 
         <div class="card flex flex-col divide-y divide-line">
-            <a href="{{ route('debts.index') }}" wire:navigate class="group flex-1 p-6 transition-colors hover:bg-surface-2/50">
+            <a href="{{ route('debts.index') }}" wire:navigate.hover class="group flex-1 p-6 transition-colors hover:bg-surface-2/50">
                 <div class="flex items-center justify-between">
                     <span class="eyebrow">{{ __('Şəxsi borclar') }}</span>
                     <span class="flex size-8 items-center justify-center rounded-lg bg-gold-soft text-gold"><flux:icon name="banknotes" variant="micro" /></span>
@@ -187,7 +187,7 @@ new #[Title('Panel')] class extends Component {
                     <span class="shrink-0 text-[11px] text-muted num">{{ $s['debt']['percent'] }}%</span>
                 </div>
             </a>
-            <a href="{{ route('loans.index') }}" wire:navigate class="group flex-1 p-6 transition-colors hover:bg-surface-2/50">
+            <a href="{{ route('loans.index') }}" wire:navigate.hover class="group flex-1 p-6 transition-colors hover:bg-surface-2/50">
                 <div class="flex items-center justify-between">
                     <span class="eyebrow">{{ __('Kreditlər — əsas borc') }}</span>
                     <span class="flex size-8 items-center justify-center rounded-lg bg-gold-soft text-gold"><flux:icon name="landmark" variant="micro" /></span>
@@ -265,7 +265,7 @@ new #[Title('Panel')] class extends Component {
                     <h2 class="text-base font-semibold text-ink">{{ __('Növbəti 7 gün') }}</h2>
                     <p class="text-xs text-faint">{{ __('Checkbox — ödə, kvadrat — cəmlə') }}</p>
                 </div>
-                <flux:link :href="route('upcoming.index')" wire:navigate class="text-sm !text-gold">{{ __('Hamısı') }} →</flux:link>
+                <flux:link :href="route('upcoming.index')" wire:navigate.hover class="text-sm !text-gold">{{ __('Hamısı') }} →</flux:link>
             </div>
             <livewire:upcoming-list :days="7" :include-undated="false" />
         </div>
@@ -273,7 +273,7 @@ new #[Title('Panel')] class extends Component {
         <div class="card p-6">
             <div class="mb-3 flex items-center justify-between">
                 <h2 class="text-base font-semibold text-ink">{{ __('Son əməliyyatlar') }}</h2>
-                <flux:link :href="route('transactions.index')" wire:navigate class="text-sm !text-gold">{{ __('Hamısı') }} →</flux:link>
+                <flux:link :href="route('transactions.index')" wire:navigate.hover class="text-sm !text-gold">{{ __('Hamısı') }} →</flux:link>
             </div>
 
             @forelse ($this->recentTransactions as $transaction)
@@ -313,12 +313,12 @@ new #[Title('Panel')] class extends Component {
                 <div wire:key="dash-group-{{ $kindValue }}" @class(['mt-7' => ! $loop->first])>
                     <div class="mb-4 flex items-center justify-between">
                         <h2 class="text-base font-semibold text-ink">{{ $kindLabel }}</h2>
-                        <flux:link :href="route($kindRoute)" wire:navigate class="text-sm !text-gold">{{ __('Hamısı') }} →</flux:link>
+                        <flux:link :href="route($kindRoute)" wire:navigate.hover class="text-sm !text-gold">{{ __('Hamısı') }} →</flux:link>
                     </div>
                     <div class="space-y-5">
                         @forelse ($group as $debt)
                             @php($amountLeft = $debt->isLoan() ? $debt->loanSummary()['principal_left'] : $debt->remaining())
-                            <a href="{{ $debt->url() }}" wire:navigate wire:key="dash-debt-{{ $debt->id }}" class="group flex items-center gap-3.5">
+                            <a href="{{ $debt->url() }}" wire:navigate.hover wire:key="dash-debt-{{ $debt->id }}" class="group flex items-center gap-3.5">
                                 <x-initials :name="$debt->counterparty" />
                                 <div class="min-w-0 flex-1">
                                     <div class="mb-2 flex items-baseline justify-between gap-2 text-sm">

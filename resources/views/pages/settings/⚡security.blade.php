@@ -180,7 +180,7 @@ new #[Title('Security settings')] class extends Component {
                 </div>
             </section>
 
-            <flux:modal name="delete-passkey" class="w-full max-w-sm">
+            <flux:modal name="delete-passkey" class="sheet-on-mobile w-full max-w-sm">
                 <div class="space-y-5">
                     <div>
                         <flux:heading size="lg">{{ __('Passkey silinsin?') }}</flux:heading>

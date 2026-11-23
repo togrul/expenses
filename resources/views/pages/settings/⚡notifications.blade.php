@@ -138,11 +138,7 @@ new #[Title('Bildirişlər')] class extends Component {
                 </div>
             </flux:fieldset>
 
-            <flux:select wire:model="notifyHour" :label="__('Göndərilmə saatı')" :description="__('Bakı vaxtı ilə, gündə bir dəfə.')" class="max-w-40">
-                @foreach (config('finance.notify_hours') as $hour)
-                    <flux:select.option :value="$hour">{{ sprintf('%02d:00', $hour) }}</flux:select.option>
-                @endforeach
-            </flux:select>
+            <x-picker wire:model="notifyHour" :label="__('Göndərilmə saatı')" :description="__('Bakı vaxtı ilə, gündə bir dəfə.')" class="max-w-48" :options="collect(config('finance.notify_hours'))->map(fn ($hour) => ['value' => $hour, 'label' => sprintf('%02d:00', $hour)])->all()" />
 
             <flux:button type="submit" variant="primary">{{ __('Yadda saxla') }}</flux:button>
         </form>

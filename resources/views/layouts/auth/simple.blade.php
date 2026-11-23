@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
@@ -8,7 +8,7 @@
 
         <div class="relative flex min-h-svh flex-col items-center justify-center gap-6 p-6 pt-[calc(1.5rem+env(safe-area-inset-top))] pb-[calc(1.5rem+env(safe-area-inset-bottom))] md:p-10">
             <div class="flex w-full max-w-sm flex-col gap-8">
-                <x-app-logo href="{{ route('dashboard') }}" wire:navigate class="justify-center" />
+                <x-app-logo href="{{ route('dashboard') }}" wire:navigate.hover class="justify-center" />
 
                 <div class="card flex flex-col gap-6 p-7">
                     {{ $slot }}
